@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸 Gacha Simulator</title>
+<style>
+:root{
+  --pink:#f472b6;--pink-light:#fce7f3;--pink-mid:#fbcfe8;--pink-deep:#ec4899;
+  --rose:#fb7185;--lavender:#c084fc;--lav-light:#f3e8ff;--lav-mid:#e9d5ff;
+  --purple:#a855f7;--peach:#fdba74;--peach-light:#fff7ed;
+  --mint:#6ee7b7;--mint-light:#ecfdf5;--sky:#7dd3fc;--sky-light:#e0f2fe;
+  --gold:#fbbf24;--gold-light:#fffbeb;--white:#ffffff;
+  --gray-50:#faf9fc;--gray-100:#f4f0f8;--gray-200:#e9e3f0;--gray-300:#d4c8e0;
+  --gray-500:#9d8db5;--gray-700:#5c4f75;
+  --text:#3d2b56;--text-soft:#7c6b99;--text-mute:#b0a0c8;
+  --radius-sm:8px;--radius:14px;--radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(168,85,247,.08);
+  --shadow:0 4px 20px rgba(168,85,247,.12);
+  --shadow-lg:0 8px 32px rgba(168,85,247,.16);
+  --ssr-border:#fbbf24;--ssr-text:#92400e;
+  --sr-border:#a855f7;--sr-text:#5b21b6;
+  --r-border:#60a5fa;--r-text:#1e40af;
+  --n-border:#b0a0c8;--n-text:#5c4f75;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#fdf2f8 0%,#f5f0ff 40%,#eff6ff 100%);min-height:100vh;color:var(--text);line-height:1.6;}
+body::before{content:'🌸';position:fixed;top:20px;right:30px;font-size:3rem;opacity:.12;pointer-events:none;animation:float 4s ease-in-out infinite;}
+body::after{content:'💫';position:fixed;bottom:30px;left:20px;font-size:2.5rem;opacity:.1;pointer-events:none;animation:float 5s ease-in-out infinite 1s;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+header{background:linear-gradient(135deg,#fce7f3,#f3e8ff,#e0f2fe);border-bottom:2px solid var(--pink-mid);padding:18px 24px;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(244,114,182,.15);}
+.header-inner{max-width:1340px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.header-logo{font-size:2rem;}
+.header-title h1{font-size:1.5rem;font-weight:800;background:linear-gradient(90deg,var(--pink-deep),var(--purple),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header-title p{font-size:.75rem;color:var(--text-soft);}
+.header-chips{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+.hchip{background:white;border:1.5px solid var(--pink-mid);border-radius:20px;padding:4px 14px;font-size:.78rem;color:var(--text-soft);display:flex;align-items:center;gap:5px;}
+.hchip b{color:var(--purple);}
+.container{max-width:1340px;margin:0 auto;padding:24px 20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.section{margin-bottom:22px;}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr;}.header-chips{display:none;}.rate-pity-grid,.roll-settings-grid{grid-template-columns:1fr !important;}.rate-pity-divider,.roll-settings-grid>div+div{border-left:none !important;padding-left:0 !important;border-top:1.5px dashed var(--gray-200);padding-top:14px !important;}}
+.card{background:var(--white);border-radius:var(--radius-lg);border:1.5px solid var(--gray-200);box-shadow:var(--shadow);padding:22px;transition:box-shadow .2s;}
+.card:hover{box-shadow:var(--shadow-lg);}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px dashed var(--gray-200);}
+.card-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.icon-pink{background:var(--pink-light);}.icon-lav{background:var(--lav-light);}.icon-peach{background:var(--peach-light);}.icon-mint{background:var(--mint-light);}.icon-sky{background:var(--sky-light);}.icon-gold{background:var(--gold-light);}
+.card-title{font-size:.97rem;font-weight:700;color:var(--text);}
+.card-sub{font-size:.72rem;color:var(--text-mute);margin-top:1px;}
+label{font-size:.78rem;color:var(--text-soft);display:block;margin-bottom:4px;font-weight:600;}
+input[type=text],input[type=number],select{width:100%;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);color:var(--text);padding:9px 12px;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit;}
+input:focus,select:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(244,114,182,.12);}
+.form-row{display:grid;gap:10px;margin-bottom:12px;}
+.c2{grid-template-columns:1fr 1fr;}
+.form-group{display:flex;flex-direction:column;}
+.input-prefix{position:relative;}
+.input-prefix span{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-soft);font-size:.85rem;pointer-events:none;}
+.input-prefix input{padding-left:26px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:30px;border:none;cursor:pointer;font-size:.86rem;font-weight:700;transition:all .18s;font-family:inherit;}
+.btn:active{transform:scale(.96);}
+.btn-pink{background:linear-gradient(135deg,var(--pink),var(--rose));color:#fff;box-shadow:0 3px 12px rgba(244,114,182,.35);}
+.btn-pink:hover{box-shadow:0 5px 20px rgba(244,114,182,.5);transform:translateY(-1px);}
+.btn-lav{background:linear-gradient(135deg,var(--lavender),var(--purple));color:#fff;box-shadow:0 3px 12px rgba(168,85,247,.35);}
+.btn-lav:hover{box-shadow:0 5px 20px rgba(168,85,247,.5);transform:translateY(-1px);}
+.btn-ghost{background:white;color:var(--text-soft);border:1.5px solid var(--gray-200);}
+.btn-ghost:hover{background:var(--gray-50);border-color:var(--pink-mid);}
+.btn-ghost-pink{background:var(--pink-light);color:var(--pink-deep);border:1.5px solid var(--pink-mid);}
+.btn-ghost-pink:hover{background:var(--pink-mid);}
+.btn-sm{padding:6px 14px;font-size:.78rem;}
+.btn-lg{padding:13px 28px;font-size:.95rem;}
+.btn-full{width:100%;}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none !important;}
+.rate-rows{display:flex;flex-direction:column;gap:10px;}
+.rate-row{display:flex;align-items:center;gap:10px;}
+.rarity-tag{width:40px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;flex-shrink:0;}
+.tag-ssr{background:var(--gold-light);color:var(--ssr-text);border:1.5px solid var(--ssr-border);}
+.tag-sr{background:var(--lav-light);color:var(--sr-text);border:1.5px solid var(--sr-border);}
+.tag-r{background:var(--sky-light);color:var(--r-text);border:1.5px solid var(--r-border);}
+.tag-n{background:var(--gray-100);color:var(--n-text);border:1.5px solid var(--n-border);}
+.rate-bar-bg{flex:1;background:var(--gray-100);border-radius:6px;height:8px;overflow:hidden;}
+.rate-bar-fill{height:100%;border-radius:6px;transition:width .4s cubic-bezier(.34,1.56,.64,1);}
+.fill-ssr{background:linear-gradient(90deg,#fcd34d,#f59e0b);}
+.fill-sr{background:linear-gradient(90deg,#d8b4fe,#a855f7);}
+.fill-r{background:linear-gradient(90deg,#93c5fd,#3b82f6);}
+.fill-n{background:linear-gradient(90deg,#d1c4e9,#9d8db5);}
+.rate-pct{width:40px;text-align:right;font-size:.82rem;font-weight:700;color:var(--text);}
+.rate-total-row{text-align:right;font-size:.83rem;font-weight:700;margin-top:10px;padding:8px 12px;border-radius:8px;}
+.total-ok{background:var(--mint-light);color:#065f46;}
+.total-bad{background:var(--pink-light);color:#be185d;}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 10px;border-radius:20px;font-size:.7rem;font-weight:700;}
+.pill-ssr{background:var(--gold-light);color:var(--ssr-text);border:1px solid var(--ssr-border);}
+.pill-sr{background:var(--lav-light);color:var(--sr-text);border:1px solid var(--sr-border);}
+.pill-r{background:var(--sky-light);color:var(--r-text);border:1px solid var(--r-border);}
+.pill-n{background:var(--gray-100);color:var(--n-text);border:1px solid var(--n-border);}
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);}
+table{width:100%;border-collapse:collapse;font-size:.83rem;}
+th{padding:9px 12px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-soft);background:var(--gray-50);border-bottom:1.5px solid var(--gray-200);white-space:nowrap;}
+td{padding:8px 12px;border-bottom:1px solid var(--gray-100);color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--pink-light);transition:background .15s;}
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;}
+@media(max-width:600px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:14px;text-align:center;border:1.5px solid var(--gray-200);box-shadow:var(--shadow-sm);}
+.stat-card-icon{font-size:1.3rem;margin-bottom:4px;}
+.stat-card-val{font-size:1.25rem;font-weight:800;line-height:1.2;}
+.stat-card-lbl{font-size:.68rem;color:var(--text-mute);margin-top:2px;}
+.stat-pink .stat-card-val{color:var(--pink-deep);}
+.stat-lav .stat-card-val{color:var(--purple);}
+.stat-peach .stat-card-val{color:#ea580c;}
+.stat-gold .stat-card-val{color:#d97706;}
+.stat-mint .stat-card-val{color:#059669;}
+.toggle-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.toggle-track{width:40px;height:22px;background:var(--gray-200);border-radius:20px;position:relative;transition:background .2s;flex-shrink:0;}
+.toggle-track.on{background:linear-gradient(135deg,var(--pink),var(--purple));}
+.toggle-thumb{width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle-track.on .toggle-thumb{transform:translateX(18px);}
+.toggle-lbl{font-size:.82rem;color:var(--text-soft);font-weight:600;}
+.val-box{padding:10px 14px;border-radius:var(--radius-sm);font-size:.82rem;margin-bottom:8px;display:flex;gap:8px;align-items:flex-start;}
+.val-error{background:rgba(251,113,133,.12);border:1.5px solid rgba(251,113,133,.4);color:#be185d;}
+.val-warn{background:rgba(251,191,36,.12);border:1.5px solid rgba(251,191,36,.4);color:#92400e;}
+.val-ok{background:var(--mint-light);border:1.5px solid rgba(110,231,183,.4);color:#065f46;}
+.insight-box{background:linear-gradient(135deg,var(--pink-light),var(--lav-light));border:1.5px solid var(--pink-mid);border-radius:var(--radius);padding:16px;margin-top:14px;}
+.insight-title{font-size:.82rem;font-weight:800;color:var(--pink-deep);margin-bottom:8px;}
+.insight-item{font-size:.82rem;color:var(--text-soft);margin-bottom:5px;padding-left:16px;position:relative;}
+.insight-item::before{content:'✨';position:absolute;left:0;font-size:.7rem;}
+.summary-bar{display:none;padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:14px;background:var(--gold-light);border:1.5px solid var(--gold);font-size:.84rem;color:#92400e;font-weight:600;}
+.summary-bar.show{display:flex;align-items:center;gap:8px;}
+.free-roll-summary{background:var(--lav-light);border:1.5px dashed var(--lavender);border-radius:var(--radius-sm);padding:12px;font-size:.82rem;color:var(--sr-text);margin-top:10px;}
+.frs-row{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;}
+.frs-chip{background:white;border:1.5px solid var(--lavender);border-radius:20px;padding:4px 12px;font-size:.78rem;color:var(--purple);font-weight:700;text-align:center;flex:1;}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:6px;background:var(--gray-50);border:1px solid var(--gray-200);font-size:.8rem;}
+.hist-time{color:var(--text-mute);font-size:.7rem;}
+.chart-bar-wrap{margin-top:12px;}
+.chart-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.78rem;}
+.chart-lbl{width:80px;text-align:right;color:var(--text-soft);font-size:.72rem;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chart-bar-bg{flex:1;background:var(--gray-100);border-radius:4px;height:18px;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:.65rem;color:#fff;font-weight:700;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
+.chart-count{width:36px;text-align:right;font-weight:700;color:var(--text);font-size:.75rem;}
+.section-divider{text-align:center;margin:10px 0 20px;display:flex;align-items:center;gap:12px;}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,transparent,var(--pink-mid),transparent);}
+.section-divider span{font-size:.78rem;color:var(--text-mute);white-space:nowrap;padding:0 4px;}
+.empty{text-align:center;padding:28px;color:var(--text-mute);font-size:.88rem;}
+.empty-icon{font-size:2.5rem;margin-bottom:8px;}
+.spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin-s .7s linear infinite;}
+@keyframes spin-s{to{transform:rotate(360deg);}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--gray-100);}
+::-webkit-scrollbar-thumb{background:var(--pink-mid);border-radius:3px;}
+.tab-bar{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;border-bottom:1.5px solid var(--gray-200);padding-bottom:12px;}
+.tab-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--gray-200);background:transparent;color:var(--text-soft);cursor:pointer;font-size:.83rem;font-weight:600;transition:all .15s;font-family:inherit;}
+.tab-btn:hover{background:var(--pink-light);border-color:var(--pink-mid);color:var(--pink-deep);}
+.tab-btn.active{background:linear-gradient(135deg,var(--pink),var(--rose));color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(244,114,182,.3);}
+.tab-pane{display:none;}.tab-pane.active{display:block;}
+[data-tip]{position:relative;cursor:help;}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:white;font-size:.7rem;padding:4px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:999;}
+[data-tip]:hover::after{opacity:1;}
+canvas{width:100%!important;border-radius:var(--radius-sm);}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="header-logo">🎀</div>
+    <div class="header-title">
+      <h1>🌸 Gacha Simulator</h1>
+      <p>Set Rates · Build Item Pool · Simulate · Analyze · Export CSV</p>
+    </div>
+    <div class="header-chips">
+      <div class="hchip">🎲 Total Pulls <b id="hPulls">0</b></div>
+      <div class="hchip">⭐ SSR <b id="hSSR">0</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<div id="valBanner" class="section"></div>
+
+<!-- Rate Settings -->
+<div class="section">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-gold">⚙️</div>
+      <div><div class="card-title">Drop Rate Settings</div><div class="card-sub">Total must equal 100%</div></div>
+      <div class="rate-total-row total-ok" id="rateTotal" style="margin:0;margin-left:auto;padding:6px 14px">✓ Total: 100%</div>
+    </div>
+    <div class="rate-pity-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--text-soft);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Drop Rates</div>
+        <div class="rate-rows">
+          <div class="rate-row"><div class="rarity-tag tag-ssr">SSR</div><input type="number" id="rSSR" value="1" min="0" max="100" step="0.01" style="width:70px;flex-shrink:0" oninput="updateRates()"><div class="rate-bar-bg"><div class="rate-bar-fill fill-ssr" id="barSSR" style="width:1%"></div></div><div class="rate-pct" id="pctSSR">1%</div></div>
+          <div class="rate-row"><div class="rarity-tag tag-sr">SR</div><input type="number" id="rSR" value="9" min="0" max="100" step="0.01" style="width:70px;flex-shrink:0" oninput="updateRates()"><div class="rate-bar-bg"><div class="rate-bar-fill fill-sr" id="barSR" style="width:9%"></div></div><div class="rate-pct" id="pctSR">9%</div></div>
+          <div class="rate-row"><div class="rarity-tag tag-r">R</div><input type="number" id="rR" value="30" min="0" max="100" step="0.01" style="width:70px;flex-shrink:0" oninput="updateRates()"><div class="rate-bar-bg"><div class="rate-bar-fill fill-r" id="barR" style="width:30%"></div></div><div class="rate-pct" id="pctR">30%</div></div>
+          <div class="rate-row"><div class="rarity-tag tag-n">N</div><input type="number" id="rN" value="60" min="0" max="100" step="0.01" style="width:70px;flex-shrink:0" oninput="updateRates()"><div class="rate-bar-bg"><div class="rate-bar-fill fill-n" id="barN" style="width:60%"></div></div><div class="rate-pct" id="pctN">60%</div></div>
+        </div>
+      </div>
+      <div class="rate-pity-divider" style="border-left:1.5px dashed var(--gray-200);padding-left:24px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div class="toggle-wrap" onclick="togglePity()">
+            <div class="toggle-track on" id="pityToggle"><div class="toggle-thumb"></div></div>
+            <span class="toggle-lbl">🛡️ Pity System</span>
+          </div>
+        </div>
+        <div id="pityFields">
+          <div class="form-row c2">
+            <div class="form-group"><label>Hard Pity SSR (rolls)</label><input type="number" id="pitySSR" value="90" min="1" max="999"></div>
+            <div class="form-group"><label>Hard Pity SR (rolls)</label><input type="number" id="pitySR" value="10" min="1" max="999"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Roll Settings -->
+<div class="section-divider"><span>🎯 Single Simulation</span></div>
+<div class="section">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-lav">🎰</div>
+      <div><div class="card-title">Roll Settings</div><div class="card-sub">Count · Price · Actions</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" class="roll-settings-grid">
+      <div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--text-soft);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Roll Options</div>
+        <div class="form-group" style="margin-bottom:10px">
+          <label>Number of Rolls</label>
+          <select id="rollCountSel" onchange="toggleCustom()">
+            <option value="1">1 Roll</option>
+            <option value="10">10 Rolls</option>
+            <option value="100" selected>100 Rolls</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+        <div class="form-group" id="customWrap" style="display:none;margin-bottom:10px">
+          <label>Custom Count</label>
+          <input type="number" id="customRolls" value="50" min="1" max="10000">
+        </div>
+        <div class="form-group">
+          <label>Price per Roll (฿)</label>
+          <div class="input-prefix"><span>฿</span><input type="number" id="pricePerRoll" value="30" min="0" step="0.01"></div>
+        </div>
+      </div>
+      <div style="display:none">
+        <div id="pityDisplay">
+          <span id="ssrPityVal">0</span><div id="ssrPityBar"></div>
+          <span id="srPityVal">0</span><div id="srPityBar"></div>
+        </div>
+      </div>
+      <div style="border-left:1.5px dashed var(--gray-200);padding-left:24px;display:flex;flex-direction:column;justify-content:center;gap:10px">
+        <div style="font-size:.75rem;font-weight:700;color:var(--text-soft);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em">Actions</div>
+        <button class="btn btn-pink btn-full btn-lg" id="btnPull" onclick="doPull()">🎰 Roll!</button>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="exportSingleCSV()" id="btnSingleCSV" disabled>⬇ Export This Pull CSV</button>
+        <button class="btn btn-ghost-pink btn-sm btn-full" onclick="resetRoll()">🗑 Reset Roll</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Item Pool -->
+<div class="section">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-pink">📦</div>
+      <div><div class="card-title">Item Pool</div><div class="card-sub">Add, edit, or delete items</div></div>
+      <div class="btn-group" style="margin-left:auto">
+        <button class="btn btn-ghost btn-sm" onclick="setDefaultPool()">↺ Set Default</button>
+        <button class="btn btn-pink btn-sm" onclick="openItemForm(null)">＋ Add Item</button>
+      </div>
+    </div>
+    <div id="itemFormWrap" style="display:none;background:var(--pink-light);border-radius:var(--radius);padding:14px;margin-bottom:14px;border:1.5px solid var(--pink-mid)">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:end">
+        <div class="form-group" style="grid-column:span 2"><label>Item Name *</label><input type="text" id="iName" placeholder="e.g. Legendary Blade"></div>
+        <div class="form-group"><label>Rarity</label><select id="iRarity"><option value="SSR">⭐⭐⭐ SSR</option><option value="SR">⭐⭐ SR</option><option value="R">⭐ R</option><option value="N">N</option></select></div>
+        <div class="form-group"><label>Icon (emoji)</label><input type="text" id="iIcon" placeholder="🗡️" maxlength="4"></div>
+      </div>
+      <div class="btn-group" style="margin-top:10px">
+        <button class="btn btn-pink btn-sm" onclick="saveItem()">💾 Save</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeItemForm()">Cancel</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Icon</th><th>Name</th><th>Rarity</th><th></th></tr></thead><tbody id="poolBody"></tbody></table>
+      <div id="poolEmpty" class="empty"><div class="empty-icon">📭</div>No items in pool yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabbed Results -->
+<div class="section">
+  <div class="card">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchResultTab('results',this)">📊 Simulation Results</button>
+      <button class="tab-btn" onclick="switchResultTab('visual',this)">📈 Visual Summary</button>
+      <button class="tab-btn" onclick="switchResultTab('history',this)">📜 Roll History</button>
+    </div>
+
+    <!-- Simulation Results Tab -->
+    <div class="tab-pane active" id="tabResults">
+      <div class="summary-bar" id="summaryBar"></div>
+      <div class="stat-row" id="statRow" style="display:none">
+        <div class="stat-card stat-pink"><div class="stat-card-icon">🎲</div><div class="stat-card-val" id="sTotal">0</div><div class="stat-card-lbl">Total Rolls</div></div>
+        <div class="stat-card stat-peach"><div class="stat-card-icon">💸</div><div class="stat-card-val" id="sCost">฿0</div><div class="stat-card-lbl">Total Cost</div></div>
+        <div class="stat-card stat-gold"><div class="stat-card-icon">⭐</div><div class="stat-card-val" id="sSSR">0</div><div class="stat-card-lbl">SSR Obtained</div></div>
+        <div class="stat-card stat-lav"><div class="stat-card-icon">🏆</div><div class="stat-card-val" id="sMostRar">—</div><div class="stat-card-lbl">Most Common Rarity</div></div>
+        <div class="stat-card stat-mint"><div class="stat-card-icon">✨</div><div class="stat-card-val" id="sTopItem" style="font-size:.85rem">—</div><div class="stat-card-lbl">Top Item</div></div>
+      </div>
+      <div id="cmpTableWrap" style="display:none;margin-bottom:14px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text-soft);margin-bottom:6px">📋 Set Rate vs Actual Result</div>
+        <div class="tbl-wrap"><table><thead><tr><th>Rarity</th><th>Target %</th><th>Count</th><th>Actual %</th><th>Diff</th><th>Visual</th></tr></thead><tbody id="cmpBody"></tbody></table></div>
+      </div>
+      <div id="itemResWrap" style="display:none;margin-bottom:12px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text-soft);margin-bottom:6px">📦 Item Results (Summary Count)</div>
+        <div class="tbl-wrap"><table><thead><tr><th>Icon</th><th>Item Name</th><th>Rarity</th><th>Count</th><th>Share %</th></tr></thead><tbody id="itemResBody"></tbody></table></div>
+      </div>
+      <div id="simEmpty" class="empty"><div class="empty-icon">🎀</div><div>Press "Roll!" to start the simulation</div></div>
+    </div>
+
+    <!-- Visual Summary Tab -->
+    <div class="tab-pane" id="tabVisual">
+      <div class="grid-2" style="gap:20px">
+        <div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--text-soft);margin-bottom:8px">Rarity Distribution (cumulative)</div>
+          <div class="chart-bar-wrap" id="chartRarity"><div class="empty" style="padding:16px"><div class="empty-icon">📊</div>Roll to see chart</div></div>
+        </div>
+        <div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--text-soft);margin-bottom:8px">Top Items (cumulative)</div>
+          <div class="chart-bar-wrap" id="chartItems"><div class="empty" style="padding:16px"><div class="empty-icon">✨</div>Roll to see chart</div></div>
+        </div>
+      </div>
+      <div class="insight-box" id="insightBox" style="display:none;margin-top:14px">
+        <div class="insight-title">💡 Insights</div>
+        <div id="insightContent"></div>
+      </div>
+    </div>
+
+    <!-- Roll History Tab -->
+    <div class="tab-pane" id="tabHistory">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:.83rem;font-weight:700;color:var(--text-soft)">📋 ประวัติการจำลอง <span id="sessionCount" style="color:var(--pink-deep)"></span></div>
+        <button class="btn btn-ghost-pink btn-sm" onclick="clearHistory()">🗑 Reset All</button>
+      </div>
+      <div id="sessionList" class="tbl-wrap" style="margin-bottom:18px"><div class="empty" style="padding:16px"><div class="empty-icon">📋</div>No sessions yet</div></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:.83rem;font-weight:700;color:var(--text-soft)">🎴 บันทึกการสุ่ม <span id="rollLogCount" style="color:var(--pink-deep)"></span></div>
+      </div>
+      <div id="histList"><div class="empty"><div class="empty-icon">📜</div>No history yet</div></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1.5px dashed var(--gray-200)">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text-soft);margin-bottom:8px">📊 SSR Trend (per session)</div>
+        <canvas id="trendCanvas" height="160"></canvas>
+        <div id="trendEmpty" class="empty" style="display:none;padding:16px"><div class="empty-icon">📈</div>Roll multiple sessions to see trend</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Player POV -->
+<div class="section-divider"><span>🧑‍💻 Player POV (Monte Carlo)</span></div>
+<div class="grid-2 section">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-lav">🎲</div>
+      <div><div class="card-title">Player POV Simulator</div><div class="card-sub">Monte Carlo · Budget-based</div></div>
+    </div>
+    <div style="font-size:.78rem;color:var(--text-soft);margin-bottom:12px">Enter your budget to see the chance of getting SSR — simulation count is calculated automatically.</div>
+    <div class="form-row c2">
+      <div class="form-group"><label>Budget (฿)</label><div class="input-prefix"><span>฿</span><input type="number" id="mcBudget" value="3000" min="1" oninput="updatePovCalc()"></div></div>
+      <div class="form-group"><label>Price per Roll (฿)</label><div class="input-prefix"><span>฿</span><input type="number" id="mcPrice" value="30" min="1" step="0.01" oninput="updatePovCalc()"></div></div>
+    </div>
+    <div style="display:none">
+      <input type="number" id="mcSims" value="1000" min="1" max="50000">
+      <input type="number" id="mcTarget" value="1" min="1" max="100">
+      <select id="mcTargetItem"><option value="">Any SSR</option></select>
+    </div>
+    <div style="background:var(--lav-light);border-radius:var(--radius);padding:14px;border:1.5px dashed var(--lavender);margin-bottom:12px">
+      <div style="display:flex;align-items:center;margin-bottom:10px">
+        <div class="toggle-wrap" onclick="toggleFreeRoll()">
+          <div class="toggle-track on" id="freeRollToggle"><div class="toggle-thumb"></div></div>
+          <span class="toggle-lbl">🎁 Free Roll Bonus</span>
+        </div>
+      </div>
+      <div id="freeRollFields">
+        <div class="form-row c2">
+          <div class="form-group"><label>Every X paid rolls</label><input type="number" id="freeEvery" value="10" min="1" max="999" oninput="updatePovCalc()"></div>
+          <div class="form-group"><label>Get Y free rolls</label><input type="number" id="freeGrant" value="1" min="1" max="99" oninput="updatePovCalc()"></div>
+        </div>
+        <div style="font-size:.72rem;color:var(--sr-text)">⚠️ Free rolls count from paid rolls only — free rolls do not generate more free rolls</div>
+      </div>
+    </div>
+    <div class="free-roll-summary" id="povSummary">
+      <div class="frs-row">
+        <div class="frs-chip">💰 Paid<br><b id="fsPaid">100</b></div>
+        <div class="frs-chip">🎁 Free<br><b id="fsFree">0</b></div>
+        <div class="frs-chip">🎲 Total<br><b id="fsTotal">100</b></div>
+      </div>
+    </div>
+    <button class="btn btn-lav btn-full btn-lg" style="margin-top:12px" id="btnMC" onclick="runMonteCarlo()">🚀 Run Simulation</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-peach">📈</div>
+      <div><div class="card-title">Player POV Results</div><div class="card-sub">Probability · Stats · Chart</div></div>
+    </div>
+    <div id="mcEmpty" class="empty"><div class="empty-icon">🎲</div><div>Press "Run Simulation" to see results</div></div>
+    <div id="mcResultWrap" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="background:var(--pink-light);border:2px solid var(--pink);border-radius:var(--radius);padding:18px;text-align:center">
+          <div id="mcSuccessRate" style="font-size:2rem;font-weight:800;color:var(--pink-deep)">—</div>
+          <div style="font-size:.78rem;font-weight:600;color:var(--pink-deep);margin-top:4px">โอกาสได้ SSR อย่างน้อย 1 ชิ้น</div>
+          <div id="mcSuccessCount" style="font-size:.72rem;color:var(--text-mute);margin-top:3px"></div>
+        </div>
+        <div style="background:var(--gold-light);border:2px solid var(--gold);border-radius:var(--radius);padding:18px;text-align:center">
+          <div id="mcFailRate" style="font-size:2rem;font-weight:800;color:#92400e">—</div>
+          <div style="font-size:.78rem;font-weight:600;color:#92400e;margin-top:4px">โอกาสไม่ได้ SSR เลย</div>
+          <div id="mcFailCount" style="font-size:.72rem;color:var(--text-mute);margin-top:3px"></div>
+        </div>
+      </div>
+      <div style="background:var(--gray-50);border-radius:var(--radius);padding:14px;margin-bottom:16px;border:1px solid var(--gray-200)">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text-soft);margin-bottom:10px">📋 สรุปการจำลอง</div>
+        <div id="mcSummaryTable" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:.82rem"></div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text-soft);margin-bottom:10px">📊 การกระจาย SSR <span style="font-weight:400;color:var(--text-mute)">(จากทุก simulation)</span></div>
+        <div id="mcDistChart"></div>
+      </div>
+      <div class="insight-box" id="mcInsight"><div id="mcInsightContent"></div></div>
+      <div style="margin-top:12px"><button class="btn btn-ghost-pink btn-sm btn-full" onclick="exportPOVCSV()">⬇ Export Player POV CSV</button></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+let pool=[
+  {id:1,name:'Excalibur',rarity:'SSR',icon:'⚔️',weight:1},
+  {id:2,name:'Dragon Staff',rarity:'SSR',icon:'🔮',weight:1},
+  {id:3,name:'Elven Shield',rarity:'SR',icon:'🛡️',weight:1},
+  {id:4,name:'Fairy Bow',rarity:'SR',icon:'🏹',weight:1},
+  {id:5,name:'Iron Sword',rarity:'R',icon:'🗡️',weight:1},
+  {id:6,name:'Stone Axe',rarity:'R',icon:'🪓',weight:1},
+  {id:7,name:'Wooden Staff',rarity:'N',icon:'🪵',weight:1},
+  {id:8,name:'Pebble',rarity:'N',icon:'🪨',weight:1},
+];
+let nextId=9,editingId=null,pityEnabled=true,freeRollEnabled=true;
+let ssrPity=0,srPity=0,totalPulls=0,totalSSR=0;
+let latestPulls=[],history=[],cumulRar={SSR:0,SR:0,R:0,N:0},cumulItems={},trendData=[],rollLog=[];
+let mcResult=null;
+
+window.onload=()=>{renderPool();updateRates();updatePovCalc();updateMcTargetItems();validate();};
+
+function getRates(){return{SSR:parseFloat(document.getElementById('rSSR').value)||0,SR:parseFloat(document.getElementById('rSR').value)||0,R:parseFloat(document.getElementById('rR').value)||0,N:parseFloat(document.getElementById('rN').value)||0};}
+
+function updateRates(){
+  const r=getRates(),total=round2(r.SSR+r.SR+r.R+r.N);
+  ['SSR','SR','R','N'].forEach(k=>{
+    const pct=total>0?(r[k]/total*100):0;
+    document.getElementById('bar'+k).style.width=Math.min(pct,100)+'%';
+    document.getElementById('pct'+k).textContent=r[k]+'%';
+  });
+  const el=document.getElementById('rateTotal');
+  if(total===100){el.className='rate-total-row total-ok';el.textContent='✓ Total: 100%';}
+  else{el.className='rate-total-row total-bad';el.textContent='✗ Total: '+total+'% (must equal 100%)';}
+  validate();
+}
+
+function togglePity(){
+  pityEnabled=!pityEnabled;
+  document.getElementById('pityToggle').classList.toggle('on',pityEnabled);
+  document.getElementById('pityFields').style.display=pityEnabled?'block':'none';
+}
+
+function toggleFreeRoll(){
+  freeRollEnabled=!freeRollEnabled;
+  document.getElementById('freeRollToggle').classList.toggle('on',freeRollEnabled);
+  document.getElementById('freeRollFields').style.display=freeRollEnabled?'block':'none';
+  updatePovCalc();
+}
+
+function calcPovRolls(){
+  const budget=parseFloat(document.getElementById('mcBudget').value)||0;
+  const price=parseFloat(document.getElementById('mcPrice').value)||1;
+  const freeEvery=parseInt(document.getElementById('freeEvery').value)||10;
+  const freeGrant=parseInt(document.getElementById('freeGrant').value)||1;
+  const paid=Math.floor(budget/Math.max(price,0.01));
+  const free=freeRollEnabled?Math.floor(paid/freeEvery)*freeGrant:0;
+  const total=paid+free;
+  const ssrRate=parseFloat(document.getElementById('rSSR').value)||1;
+  const expectedSSRperSim=total*ssrRate/100;
+  const suggested=Math.min(Math.max(500,Math.round(5000/Math.max(expectedSSRperSim,0.01))),50000);
+  return{paid,free,total,suggested};
+}
+
+function updatePovCalc(){
+  const{paid,free,total,suggested}=calcPovRolls();
+  document.getElementById('fsPaid').textContent=paid.toLocaleString();
+  document.getElementById('fsFree').textContent=free.toLocaleString();
+  document.getElementById('fsTotal').textContent=total.toLocaleString();
+  const simsEl=document.getElementById('mcSims');
+  if(!simsEl._userEdited)simsEl.value=suggested;
+}
+
+function autoSuggestSims(){const{suggested}=calcPovRolls();const s=document.getElementById('mcSims');s.value=suggested;s._userEdited=false;}
+document.addEventListener('DOMContentLoaded',()=>{const s=document.getElementById('mcSims');if(s)s.addEventListener('input',()=>{s._userEdited=true;});});
+
+function setDefaultPool(){
+  if(pool.length>0&&!confirm('Reset item pool to defaults?'))return;
+  pool=[
+    {id:nextId++,name:'Excalibur',rarity:'SSR',icon:'⚔️',weight:1},
+    {id:nextId++,name:'Dragon Staff',rarity:'SSR',icon:'🔮',weight:1},
+    {id:nextId++,name:'Elven Shield',rarity:'SR',icon:'🛡️',weight:1},
+    {id:nextId++,name:'Fairy Bow',rarity:'SR',icon:'🏹',weight:1},
+    {id:nextId++,name:'Iron Sword',rarity:'R',icon:'🗡️',weight:1},
+    {id:nextId++,name:'Stone Axe',rarity:'R',icon:'🪓',weight:1},
+    {id:nextId++,name:'Wooden Staff',rarity:'N',icon:'🪵',weight:1},
+    {id:nextId++,name:'Pebble',rarity:'N',icon:'🪨',weight:1},
+  ];
+  renderPool();
+}
+
+function renderPool(){
+  const tbody=document.getElementById('poolBody');
+  tbody.innerHTML='';
+  document.getElementById('poolEmpty').style.display=pool.length===0?'block':'none';
+  pool.forEach(item=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-size:1.2rem">${item.icon}</td><td style="font-weight:600">${item.name}</td><td><span class="pill pill-${item.rarity.toLowerCase()}">${item.rarity}</span></td><td><div class="btn-group"><button class="btn btn-ghost btn-sm" onclick="openItemForm(${item.id})">✏️</button><button class="btn btn-ghost-pink btn-sm" onclick="deleteItem(${item.id})">🗑</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+  updateMcTargetItems();validate();
+}
+
+function openItemForm(id){
+  editingId=id;
+  if(id!==null){const item=pool.find(i=>i.id===id);if(!item)return;document.getElementById('iName').value=item.name;document.getElementById('iRarity').value=item.rarity;document.getElementById('iIcon').value=item.icon;}
+  else{document.getElementById('iName').value='';document.getElementById('iRarity').value='SSR';document.getElementById('iIcon').value='';}
+  document.getElementById('itemFormWrap').style.display='block';
+  document.getElementById('iName').focus();
+}
+function closeItemForm(){document.getElementById('itemFormWrap').style.display='none';}
+
+function saveItem(){
+  const name=document.getElementById('iName').value.trim();
+  const rarity=document.getElementById('iRarity').value;
+  const icon=document.getElementById('iIcon').value.trim()||'❓';
+  if(!name){alert('Please enter an item name');return;}
+  if(editingId!==null){const item=pool.find(i=>i.id===editingId);if(item)Object.assign(item,{name,rarity,icon});}
+  else{pool.push({id:nextId++,name,rarity,icon,weight:1});}
+  closeItemForm();renderPool();
+}
+
+function deleteItem(id){if(!confirm('Delete this item?'))return;pool=pool.filter(i=>i.id!==id);renderPool();}
+
+function updateMcTargetItems(){
+  const sel=document.getElementById('mcTargetItem');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Any SSR</option>';
+  pool.filter(i=>i.rarity==='SSR').forEach(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.icon+' '+i.name;sel.appendChild(o);});
+  sel.value=cur;
+}
+
+function validate(){
+  const msgs=[];
+  const r=getRates();
+  const total=round2(r.SSR+r.SR+r.R+r.N);
+  if(total!==100)msgs.push({type:'error',text:`Rates total ${total}% — must equal 100%`});
+  ['SSR','SR','R','N'].forEach(rar=>{if(r[rar]>0&&pool.filter(i=>i.rarity===rar).length===0)msgs.push({type:'warn',text:`${rar} rate is ${r[rar]}% but no ${rar} items in pool`});});
+  if(pool.length===0)msgs.push({type:'error',text:'Item pool is empty — please add at least one item'});
+  const banner=document.getElementById('valBanner');
+  if(msgs.length===0){banner.innerHTML=`<div class="val-box val-ok">✅ All settings valid — ready to roll!</div>`;}
+  else{banner.innerHTML=msgs.map(m=>`<div class="val-box val-${m.type}">${m.type==='error'?'❌':'⚠️'} ${m.text}</div>`).join('');}
+  const ok=msgs.every(m=>m.type!=='error');
+  document.getElementById('btnPull').disabled=!ok;
+  document.getElementById('btnMC').disabled=!ok;
+  return ok;
+}
+
+function rollOne(ssrPityCount,srPityCount){
+  const r=getRates();
+  const hardPitySSR=pityEnabled?(parseInt(document.getElementById('pitySSR').value)||90):9999;
+  const hardPitySR=pityEnabled?(parseInt(document.getElementById('pitySR').value)||10):9999;
+  if(ssrPityCount>=hardPitySSR-1)return pickRarity('SSR');
+  if(srPityCount>=hardPitySR-1)return pickRarity('SR');
+  let ssrRate=r.SSR;
+  const roll=Math.random()*100;
+  let rarity;
+  if(roll<ssrRate)rarity='SSR';
+  else if(roll<ssrRate+r.SR)rarity='SR';
+  else if(roll<ssrRate+r.SR+r.R)rarity='R';
+  else rarity='N';
+  return pickRarity(rarity);
+}
+
+function pickRarity(rarity){
+  const items=pool.filter(i=>i.rarity===rarity);
+  if(items.length===0){if(pool.length===0)return{id:-1,name:'???',rarity,icon:'❓',weight:1};return pool[Math.floor(Math.random()*pool.length)];}
+  const totalW=items.reduce((s,i)=>s+i.weight,0);
+  let rnd=Math.random()*totalW;
+  for(const item of items){rnd-=item.weight;if(rnd<=0)return item;}
+  return items[items.length-1];
+}
+
+function doPull(){
+  if(!validate())return;
+  const countSel=document.getElementById('rollCountSel').value;
+  const rolls=countSel==='custom'?(parseInt(document.getElementById('customRolls').value)||1):parseInt(countSel);
+  if(rolls<=0){alert('Roll count must be greater than 0');return;}
+  const price=parseFloat(document.getElementById('pricePerRoll').value)||0;
+  if(price<0){alert('Price per roll cannot be negative');return;}
+  let results=[],lSSR=ssrPity,lSR=srPity;
+  for(let i=0;i<rolls;i++){
+    const item=rollOne(lSSR,lSR);
+    if(item.rarity==='SSR'){lSSR=0;}else{lSSR++;}
+    if(item.rarity==='SR'||item.rarity==='SSR'){lSR=0;}else{lSR++;}
+    results.push({...item,isPaid:true,isFree:false,rollNo:results.length+1});
+  }
+  ssrPity=lSSR;srPity=lSR;
+  const ssrCount=results.filter(r=>r.rarity==='SSR').length;
+  totalPulls+=results.length;totalSSR+=ssrCount;latestPulls=results;
+  const priceVal=price;
+  const newEntries=[...results].reverse().map(r=>({...r,price:priceVal}));
+  rollLog=[...newEntries,...rollLog];
+  results.forEach(r=>{cumulRar[r.rarity]++;cumulItems[r.name]=(cumulItems[r.name]||0)+1;});
+  trendData.push({session:history.length+1,ssr:ssrCount,total:results.length});
+  const sessionItemCounts={};
+  results.forEach(r=>{sessionItemCounts[r.name]=(sessionItemCounts[r.name]||0)+1;});
+  const topItemEntry=Object.entries(sessionItemCounts).sort((a,b)=>b[1]-a[1])[0];
+  history.unshift({
+    session:history.length+1,total:results.length,paid:rolls,free:0,
+    ssr:ssrCount,sr:results.filter(r=>r.rarity==='SR').length,cost:rolls*price,
+    ssrPct:rolls>0?(ssrCount/rolls*100).toFixed(2):'0.00',
+    topItem:topItemEntry?topItemEntry[0]:'—',pity:lSSR,pityOn:pityEnabled,
+    time:new Date().toLocaleTimeString('en-US'),
+  });
+  updateHeaderStats();renderPullResults(results,price);
+  updatePityVals();renderHistory();renderCharts();generateInsights(results,price);
+  document.getElementById('btnSingleCSV').disabled=false;
+  document.getElementById('simEmpty').style.display='none';
+}
+
+function toggleCustom(){document.getElementById('customWrap').style.display=document.getElementById('rollCountSel').value==='custom'?'flex':'none';}
+function resetPity(){ssrPity=0;srPity=0;updatePityVals();}
+function updatePityVals(){document.getElementById('ssrPityVal').textContent=ssrPity;document.getElementById('srPityVal').textContent=srPity;}
+
+function updateHeaderStats(){
+  document.getElementById('hPulls').textContent=totalPulls.toLocaleString();
+  document.getElementById('hSSR').textContent=totalSSR.toLocaleString();
+}
+
+function resetRoll(){
+  if(!confirm('Reset all roll results and counters?'))return;
+  ssrPity=0;srPity=0;totalPulls=0;totalSSR=0;latestPulls=[];rollLog=[];
+  history=[];trendData=[];cumulRar={SSR:0,SR:0,R:0,N:0};cumulItems={};
+  updatePityVals();updateHeaderStats();renderHistory();renderCharts();
+  document.getElementById('statRow').style.display='none';
+  document.getElementById('cmpTableWrap').style.display='none';
+  document.getElementById('itemResWrap').style.display='none';
+  document.getElementById('simEmpty').style.display='block';
+  document.getElementById('insightBox').style.display='none';
+  document.getElementById('summaryBar').className='summary-bar';
+  document.getElementById('btnSingleCSV').disabled=true;
+}
+
+function switchResultTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+  if(tab==='visual'||tab==='history')setTimeout(()=>{renderTrendChart();},50);
+}
+
+function renderPullResults(results,price){
+  const counts={SSR:0,SR:0,R:0,N:0},itemCounts={};
+  results.forEach(r=>{counts[r.rarity]++;itemCounts[r.name]=(itemCounts[r.name]||0)+1;});
+  const totalCost=results.length*price;
+  const mostRar=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+  const topItem=Object.entries(itemCounts).sort((a,b)=>b[1]-a[1])[0];
+  const nPaid=results.length;
+  document.getElementById('sTotal').textContent=nPaid;
+  document.getElementById('sCost').textContent='฿'+totalCost.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2});
+  document.getElementById('sSSR').textContent=counts.SSR;
+  document.getElementById('sMostRar').textContent=mostRar;
+  document.getElementById('sTopItem').textContent=topItem?topItem[0]+' ×'+topItem[1]:'—';
+  document.getElementById('statRow').style.display='grid';
+  // Summary bar
+  const r2=getRates();
+  const expectedSSR=(nPaid*r2.SSR/100).toFixed(1);
+  const gotSSR=counts.SSR;
+  const diff=round2(gotSSR-parseFloat(expectedSSR));
+  let summaryMsg='';
+  if(gotSSR===0)summaryMsg=`✨ ไม่ได้ SSR เลยในรอบนี้ — คาดว่าจะได้ ${expectedSSR} ชิ้น`;
+  else if(Math.abs(diff)<=0.5)summaryMsg=`✨ ตรงตามอัตรา ได้ SSR ${gotSSR} ชิ้น ใกล้เคียงกับที่คาดไว้ ${expectedSSR} ชิ้น`;
+  else if(gotSSR>parseFloat(expectedSSR))summaryMsg=`🍀 โชคดี! ได้ SSR ${gotSSR} ชิ้น มากกว่าที่คาดไว้ ${diff} ชิ้น`;
+  else summaryMsg=`😅 ได้ SSR ${gotSSR} ชิ้น น้อยกว่าที่คาดไว้ ${Math.abs(diff)} ชิ้น`;
+  const bar=document.getElementById('summaryBar');bar.textContent=summaryMsg;bar.className='summary-bar show';
+  // Comparison table
+  const r=getRates(),cmpBody=document.getElementById('cmpBody');
+  cmpBody.innerHTML='';
+  ['SSR','SR','R','N'].forEach(rar=>{
+    const target=r[rar],cnt=counts[rar];
+    const actual=nPaid>0?(cnt/nPaid*100).toFixed(2):'0.00';
+    const d=(parseFloat(actual)-target).toFixed(2);
+    const diffClass=parseFloat(d)>0.1?'cmp-diff-pos':parseFloat(d)<-0.1?'cmp-diff-neg':'cmp-diff-neu';
+    const barPct=nPaid>0?Math.min(cnt/nPaid*100,100):0;
+    const barColors={SSR:'#f59e0b',SR:'#a855f7',R:'#60a5fa',N:'#b0a0c8'};
+    cmpBody.innerHTML+=`<tr><td><span class="pill pill-${rar.toLowerCase()}">${rar}</span></td><td>${parseFloat(target).toFixed(2)}%</td><td>${cnt}</td><td>${actual}%</td><td class="${diffClass}">${parseFloat(d)>0?'+':''}${d}%</td><td><div style="background:${barColors[rar]}33;height:14px;border-radius:4px;width:${barPct}%;min-width:4px;border:1px solid ${barColors[rar]}77"></div></td></tr>`;
+  });
+  document.getElementById('cmpTableWrap').style.display='block';
+  // Item results
+  const iBody=document.getElementById('itemResBody');iBody.innerHTML='';
+  Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).forEach(([name,cnt])=>{
+    const item=pool.find(p=>p.name===name)||{};
+    const pct=nPaid>0?(cnt/nPaid*100).toFixed(2):'0.00';
+    iBody.innerHTML+=`<tr><td style="font-size:1.1rem">${item.icon||'❓'}</td><td style="font-weight:600">${name}</td><td><span class="pill pill-${(item.rarity||'n').toLowerCase()}">${item.rarity||'?'}</span></td><td>${cnt}</td><td>${pct}%</td></tr>`;
+  });
+  document.getElementById('itemResWrap').style.display='block';
+}
+
+function renderHistory(){
+  const sessionEl=document.getElementById('sessionList'),sessionCnt=document.getElementById('sessionCount');
+  if(history.length===0){sessionEl.innerHTML='<div class="empty" style="padding:16px"><div class="empty-icon">📋</div>No sessions yet</div>';if(sessionCnt)sessionCnt.textContent='';}
+  else{
+    if(sessionCnt)sessionCnt.textContent=`(${history.length} ครั้งล่าสุด)`;
+    sessionEl.innerHTML=`<table><thead><tr><th style="width:40px">#</th><th style="width:60px">สุ่ม</th><th style="width:50px">SSR</th><th style="width:70px">SSR%</th><th style="text-align:center">TOP ITEM</th><th style="width:60px;text-align:center">PITY</th></tr></thead><tbody>${history.slice(0,10).map(h=>`<tr><td style="color:var(--text-mute)">${h.session}</td><td>${h.paid}</td><td style="color:#d97706;font-weight:700">${h.ssr}</td><td style="color:var(--purple)">${h.ssrPct||'0.00'}%</td><td style="font-weight:600;text-align:center">${h.topItem||'—'}</td><td style="text-align:center">${h.pityOn?`<span style="background:var(--pink-light);color:var(--pink-deep);font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:10px;border:1px solid var(--pink-mid)">ON</span>`:`<span style="background:var(--gray-100);color:var(--text-mute);font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:10px;border:1px solid var(--gray-200)">OFF</span>`}</td></tr>`).join('')}</tbody></table>`;
+  }
+  const list=document.getElementById('histList'),countEl=document.getElementById('rollLogCount');
+  if(rollLog.length===0){list.innerHTML='<div class="empty"><div class="empty-icon">📜</div>No history yet</div>';if(countEl)countEl.textContent='';return;}
+  if(countEl)countEl.textContent=`(${rollLog.length} ครั้ง)`;
+  const colors={SSR:'#d97706',SR:'var(--purple)',R:'#3b82f6',N:'var(--text-mute)'};
+  list.innerHTML=`<div class="tbl-wrap" style="max-height:360px;overflow-y:auto"><table><thead><tr><th style="width:60px">ครั้งที่</th><th style="width:80px">ความหายาก</th><th>ITEM NAME</th><th style="width:70px;text-align:right">ราคา</th></tr></thead><tbody>${rollLog.map((r,i)=>`<tr><td style="color:var(--text-mute);font-size:.82rem">${rollLog.length-i}</td><td><span class="pill pill-${r.rarity.toLowerCase()}">${r.rarity}</span></td><td style="font-weight:600;color:${colors[r.rarity]}">${r.icon||''} ${r.name}</td><td style="text-align:right;color:var(--text-soft)">${r.price>0?'฿'+r.price:'—'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function clearHistory(){
+  if(!confirm('Reset all history and counters?'))return;
+  history=[];trendData=[];cumulRar={SSR:0,SR:0,R:0,N:0};cumulItems={};
+  totalPulls=0;totalSSR=0;ssrPity=0;srPity=0;latestPulls=[];rollLog=[];
+  renderHistory();updatePityVals();updateHeaderStats();
+  document.getElementById('sessionList').innerHTML='<div class="empty" style="padding:16px"><div class="empty-icon">📋</div>No sessions yet</div>';
+  if(document.getElementById('sessionCount'))document.getElementById('sessionCount').textContent='';
+  document.getElementById('statRow').style.display='none';
+  document.getElementById('cmpTableWrap').style.display='none';
+  document.getElementById('itemResWrap').style.display='none';
+  document.getElementById('simEmpty').style.display='block';
+  document.getElementById('insightBox').style.display='none';
+  document.getElementById('summaryBar').className='summary-bar';
+  document.getElementById('btnSingleCSV').disabled=true;
+  renderCharts();
+}
+
+function renderCharts(){
+  const total=Object.values(cumulRar).reduce((s,v)=>s+v,0);
+  const rarEl=document.getElementById('chartRarity');
+  if(total===0){rarEl.innerHTML='<div class="empty" style="padding:16px"><div class="empty-icon">📊</div>Roll to see chart</div>';}
+  else{
+    const colors={SSR:'#f59e0b',SR:'#a855f7',R:'#60a5fa',N:'#b0a0c8'};
+    const max=Math.max(...Object.values(cumulRar));
+    rarEl.innerHTML=['SSR','SR','R','N'].map(rar=>{
+      const cnt=cumulRar[rar],w=max>0?Math.round(cnt/max*100):0,pct=total>0?(cnt/total*100).toFixed(2):'0.00';
+      return`<div class="chart-row"><div class="chart-lbl"><span class="pill pill-${rar.toLowerCase()}">${rar}</span></div><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${w}%;background:${colors[rar]}">${cnt>0?pct+'%':''}</div></div><div class="chart-count">${cnt}</div></div>`;
+    }).join('');
+  }
+  const itemsEl=document.getElementById('chartItems');
+  const entries=Object.entries(cumulItems).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(entries.length===0){itemsEl.innerHTML='<div class="empty" style="padding:16px"><div class="empty-icon">✨</div>Roll to see chart</div>';}
+  else{
+    const maxI=entries[0][1],totalI=Object.values(cumulItems).reduce((s,v)=>s+v,0);
+    itemsEl.innerHTML=entries.map(([name,cnt])=>{
+      const item=pool.find(p=>p.name===name)||{};
+      const colors={SSR:'#f59e0b',SR:'#a855f7',R:'#60a5fa',N:'#b0a0c8'};
+      const col=colors[item.rarity]||'#b0a0c8',w=Math.round(cnt/maxI*100),pct=totalI>0?(cnt/totalI*100).toFixed(2):'0.00';
+      const short=(item.icon||'')+(name.length>10?name.slice(0,9)+'…':name);
+      return`<div class="chart-row"><div class="chart-lbl">${short}</div><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${w}%;background:${col}">${cnt>0?pct+'%':''}</div></div><div class="chart-count">${cnt}</div></div>`;
+    }).join('');
+  }
+  renderTrendChart();
+}
+
+function renderTrendChart(){
+  const canvas=document.getElementById('trendCanvas'),empty=document.getElementById('trendEmpty');
+  if(trendData.length===0){empty.style.display='block';canvas.style.display='none';return;}
+  empty.style.display='none';canvas.style.display='block';
+  const ctx=canvas.getContext('2d'),W=canvas.offsetWidth||400;
+  canvas.width=W;canvas.height=160;ctx.clearRect(0,0,W,160);
+  const pad={top:20,bottom:28,left:28,right:10},data=trendData.map(t=>t.ssr);
+  const maxV=Math.max(...data,1),n=data.length,H=160;
+  const bw=Math.max(4,(W-pad.left-pad.right)/n),gap=Math.max(2,bw*.15);
+  ctx.strokeStyle='rgba(244,114,182,.12)';ctx.lineWidth=1;
+  for(let i=0;i<=maxV;i++){
+    const y=pad.top+(H-pad.top-pad.bottom)*(1-i/maxV);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(W-pad.right,y);ctx.stroke();
+    ctx.fillStyle='#b0a0c8';ctx.font='9px sans-serif';ctx.textAlign='right';
+    ctx.fillText(i,pad.left-3,y+4);
+  }
+  data.forEach((v,i)=>{
+    const bh=v>0?(v/maxV)*(H-pad.top-pad.bottom):0,x=pad.left+i*bw+gap/2,y=H-pad.bottom-bh,w=bw-gap;
+    const grad=ctx.createLinearGradient(0,y,0,H-pad.bottom);
+    grad.addColorStop(0,'rgba(244,114,182,.9)');grad.addColorStop(1,'rgba(196,132,252,.5)');
+    ctx.fillStyle=grad;
+    if(ctx.roundRect)ctx.roundRect(x,y,w,bh,4);else ctx.rect(x,y,w,bh);
+    ctx.fill();
+    if(v>0){ctx.fillStyle='#be185d';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(v,x+w/2,y-5);}
+    ctx.fillStyle='#b0a0c8';ctx.font='9px sans-serif';ctx.textAlign='center';
+    ctx.fillText('#'+(i+1),x+w/2,H-10);
+  });
+}
+
+function generateInsights(results,price){
+  const total=results.length;if(total===0)return;
+  const r=getRates(),counts={SSR:0,SR:0,R:0,N:0};
+  results.forEach(r=>counts[r.rarity]++);
+  const ssrCount=counts.SSR,actualSSR=(ssrCount/total*100).toFixed(2),expectedSSR=r.SSR;
+  const totalCost=results.length*price,lines=[];
+  if(ssrCount>0){
+    lines.push(`Got ${ssrCount} SSR from ${total} pulls (actual ${actualSSR}% vs set ${expectedSSR}%)`);
+    const avgCostPerSSR=totalCost>0?Math.round(totalCost/ssrCount):0;
+    if(avgCostPerSSR>0)lines.push(`Average cost per SSR: ฿${avgCostPerSSR.toLocaleString()}`);
+  }else{lines.push(`No SSR this session — better luck next time! 🍀`);}
+  if(parseFloat(actualSSR)>expectedSSR*1.5)lines.push('🍀 Running hot — well above average luck!');
+  else if(parseFloat(actualSSR)<expectedSSR*.5&&ssrCount===0)lines.push('😅 Bad luck this round — but pity is building!');
+  const hardSSR=parseInt(document.getElementById('pitySSR').value)||90;
+  if(ssrPity>hardSSR*.7)lines.push(`⚠️ Pity counter ${ssrPity}/${hardSSR} — SSR incoming soon!`);
+  const topItem=Object.entries(results.reduce((acc,r)=>{acc[r.name]=(acc[r.name]||0)+1;return acc;},{})).sort((a,b)=>b[1]-a[1])[0];
+  if(topItem)lines.push(`Most frequent item: ${topItem[0]} (×${topItem[1]})`);
+  document.getElementById('insightContent').innerHTML=lines.map(l=>`<div class="insight-item">${l}</div>`).join('');
+  document.getElementById('insightBox').style.display='block';
+}
+
+async function runMonteCarlo(){
+  if(!validate())return;
+  const budget=parseFloat(document.getElementById('mcBudget').value)||0;
+  const price=parseFloat(document.getElementById('mcPrice').value)||1;
+  const targetSSR=parseInt(document.getElementById('mcTarget').value)||1;
+  const targetItem=document.getElementById('mcTargetItem').value;
+  const freeEvery=freeRollEnabled?(parseInt(document.getElementById('freeEvery').value)||10):0;
+  const freeGrant=freeRollEnabled?(parseInt(document.getElementById('freeGrant').value)||1):0;
+  if(budget<=0){alert('Please enter a budget');return;}
+  if(price<=0){alert('Price per roll must be greater than 0');return;}
+  const paid=Math.floor(budget/price),free=freeRollEnabled?Math.floor(paid/freeEvery)*freeGrant:0;
+  const totalRolls=paid+free;
+  if(paid<=0){alert('Budget is not enough for even one roll');return;}
+  const sims=Math.min(Math.max(1,parseInt(document.getElementById('mcSims').value)||1000),50000);
+  const btn=document.getElementById('btnMC');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Simulating…';
+  await new Promise(res=>setTimeout(res,20));
+  let successes=0,ssrCounts=[],srTotals=[],rTotals=[],nTotals=[];
+  for(let s=0;s<sims;s++){
+    let lSSR=0,lSR=0,ssrGot=0,srGot=0,rGot=0,nGot=0,paidDone=0;
+    for(let i=0;i<paid;i++){
+      paidDone++;
+      const item=rollOne(lSSR,lSR);
+      if(item.rarity==='SSR'){lSSR=0;ssrGot++;}else{lSSR++;}
+      if(item.rarity==='SR'||item.rarity==='SSR'){lSR=0;}else{lSR++;}
+      if(item.rarity==='SR')srGot++;else if(item.rarity==='R')rGot++;else if(item.rarity==='N')nGot++;
+      if(freeRollEnabled&&freeEvery>0&&paidDone%freeEvery===0){
+        for(let f=0;f<freeGrant;f++){
+          const fi=rollOne(lSSR,lSR);
+          if(fi.rarity==='SSR'){lSSR=0;ssrGot++;}else{lSSR++;}
+          if(fi.rarity==='SR'||fi.rarity==='SSR'){lSR=0;}else{lSR++;}
+          if(fi.rarity==='SR')srGot++;else if(fi.rarity==='R')rGot++;else if(fi.rarity==='N')nGot++;
+        }
+      }
+    }
+    ssrCounts.push(ssrGot);srTotals.push(srGot);rTotals.push(rGot);nTotals.push(nGot);
+    if(ssrGot>=targetSSR)successes++;
+  }
+  ssrCounts.sort((a,b)=>a-b);
+  const successRate=round2(successes/sims*100),failRate=round2((sims-successes)/sims*100);
+  const avgSSR=round2(ssrCounts.reduce((s,v)=>s+v,0)/sims);
+  const avgSR=round2(srTotals.reduce((s,v)=>s+v,0)/sims);
+  const avgR=round2(rTotals.reduce((s,v)=>s+v,0)/sims);
+  const avgN=round2(nTotals.reduce((s,v)=>s+v,0)/sims);
+  const bestSSR=ssrCounts[sims-1],worstSSR=ssrCounts[0],medianSSR=ssrCounts[Math.floor(sims/2)],p75=ssrCounts[Math.floor(sims*.75)];
+  mcResult={budget,price,paid,free,totalRolls,sims,targetSSR,successRate,failRate,avgSSR,avgSR,avgR,avgN,medianSSR,bestSSR,worstSSR,p75,ssrCounts};
+  document.getElementById('mcSuccessRate').textContent=successRate+'%';
+  document.getElementById('mcFailRate').textContent=failRate+'%';
+  document.getElementById('mcSuccessCount').textContent=`${successes.toLocaleString()} จาก ${sims.toLocaleString()} การจำลอง`;
+  document.getElementById('mcFailCount').textContent=`${(sims-successes).toLocaleString()} จาก ${sims.toLocaleString()} การจำลอง`;
+  const rows=[['งบประมาณ',`฿${budget.toLocaleString()} บาท`],['ราคาต่อครั้ง',`฿${price.toLocaleString()} บาท`],['สุ่มจ่าย',`<b style="color:var(--pink-deep)">${paid.toLocaleString()}</b>`],['Free Rolls',free.toLocaleString()],['รวมทั้งหมด',totalRolls.toLocaleString()],['การจำลอง',`<b style="color:var(--purple)">${sims.toLocaleString()} ครั้ง</b>`],['SSR เฉลี่ย',`<b style="color:#d97706">${avgSSR} ชิ้น</b>`],['SR เฉลี่ย',`${avgSR} ชิ้น`],['R เฉลี่ย',`${avgR} ชิ้น`],['N เฉลี่ย',`${avgN} ชิ้น`],['ผลดีที่สุด (SSR)',`<b style="color:var(--pink-deep)">${bestSSR} ชิ้น</b>`],['ผลแย่ที่สุด (SSR)',`${worstSSR} ชิ้น`]];
+  document.getElementById('mcSummaryTable').innerHTML=rows.map(([k,v])=>`<div style="color:var(--text-soft)">${k}</div><div>${v}</div>`).join('');
+  const freq={};ssrCounts.forEach(v=>{freq[v]=(freq[v]||0)+1;});
+  const maxFreq=Math.max(...Object.values(freq));
+  const distColors=['#ef4444','#3b82f6','#a855f7','#f59e0b','#10b981','#ec4899','#64748b'];
+  document.getElementById('mcDistChart').innerHTML=Object.entries(freq).sort((a,b)=>+a[0]-+b[0]).map(([ssr,cnt],i)=>{
+    const pct=round2(cnt/sims*100),w=Math.round(cnt/maxFreq*100),col=distColors[Math.min(+ssr,distColors.length-1)];
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.8rem"><div style="width:50px;text-align:right;color:var(--text-soft);flex-shrink:0">${ssr} SSR</div><div style="flex:1;background:var(--gray-100);border-radius:4px;height:20px;overflow:hidden"><div style="width:${w}%;height:100%;background:${col};border-radius:4px;display:flex;align-items:center;padding-left:6px"><span style="font-size:.68rem;color:#fff;font-weight:700;white-space:nowrap">${w>15?pct+'%':''}</span></div></div><div style="width:100px;color:var(--text-soft);flex-shrink:0;text-align:right">${cnt.toLocaleString()} <span style="color:var(--text-mute)">(${pct}%)</span></div></div>`;
+  }).join('');
+  const r=getRates();
+  const insText=`ด้วยงบประมาณ ฿${budget.toLocaleString()} บาท ราคาต่อครั้ง ฿${price} บาท สุ่มครั้งจ่าย ${paid.toLocaleString()} ครั้ง และ Free Rolls ${free.toLocaleString()} ครั้ง รวมการจำลอง ${totalRolls.toLocaleString()} ครั้ง จากการจำลอง ${sims.toLocaleString()} ครั้ง อัตรา SSR ${r.SSR}% โอกาสได้ SSR อย่างน้อย 1 ชิ้น คือ <b style="color:var(--pink-deep)">${successRate}%</b>`;
+  let warnText=successRate<50?`⚠️ โอกาสไม่ถึง 50% — พิจารณาเพิ่มงบประมาณ`:successRate>90?`🌟 โอกาสสูงมาก — งบนี้คุ้มค่า!`:`⚠️ โอกาสไม่ได้ SSR ${failRate}% ที่แนะนำให้ใช้ Pity System เพื่อรับประกัน SSR`;
+  document.getElementById('mcInsightContent').innerHTML=`<div class="insight-item" style="margin-bottom:8px">${insText}</div><div style="background:var(--gold-light);border:1px solid var(--gold);border-radius:6px;padding:8px 12px;font-size:.78rem;color:#92400e;margin-top:4px">${warnText}</div>`;
+  document.getElementById('mcEmpty').style.display='none';
+  document.getElementById('mcResultWrap').style.display='block';
+  btn.disabled=false;btn.innerHTML='🚀 Run Simulation';
+}
+
+function dlCSV(filename,rows){
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=filename;a.click();URL.revokeObjectURL(a.href);
+}
+
+function exportSingleCSV(){
+  if(!latestPulls.length)return;
+  const price=parseFloat(document.getElementById('pricePerRoll').value)||0;
+  const counts={SSR:0,SR:0,R:0,N:0};latestPulls.forEach(p=>counts[p.rarity]++);
+  const n=latestPulls.length;
+  const ssrPct=n>0?(counts.SSR/n*100).toFixed(2)+'%':'0.00%';
+  const srPct=n>0?(counts.SR/n*100).toFixed(2)+'%':'0.00%';
+  const rPct=n>0?(counts.R/n*100).toFixed(2)+'%':'0.00%';
+  const nPctVal=n>0?(counts.N/n*100).toFixed(2)+'%':'0.00%';
+  const timeNow=new Date().toLocaleString('th-TH');
+  const rows=[['ครั้งที่','ความหายาก','Item Name','ราคาต่อครั้ง','เวลา','จำนวนสุ่มทั้งหมด','SSR %','SR %','R %','N %']];
+  latestPulls.forEach(p=>rows.push([p.rollNo,p.rarity,p.name,price,timeNow,n,ssrPct,srPct,rPct,nPctVal]));
+  dlCSV('gacha_latest_pull.csv',rows);
+}
+
+function exportPOVCSV(){
+  if(!mcResult)return;
+  const m=mcResult,r=getRates();
+  const timeNow=new Date().toLocaleString('th-TH');
+  const pityStatus=pityEnabled?'ON':'OFF',freeRollStatus=freeRollEnabled?'ON':'OFF';
+  const rows=[['เวลา','งบประมาณ (บาท)','ราคาต่อครั้ง (บาท)','สุ่มที่จ่าย','Free Rolls','รวมทั้งหมด','จำนวนการจำลอง','อัตรา SSR (%)','อัตรา SR (%)','อัตรา R (%)','อัตรา N (%)','Pity System','Free Roll Bonus']];
+  rows.push([timeNow,m.budget,m.price,m.paid,m.free,m.totalRolls,m.sims,r.SSR+'%',r.SR+'%',r.R+'%',r.N+'%',pityStatus,freeRollStatus]);
+  dlCSV('gacha_player_pov.csv',rows);
+}
+
+function round2(n){return Math.round(n*100)/100;}
+let resizeT;
+window.addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{renderTrendChart();},200);});
+</script>
+</body>
+</html>
