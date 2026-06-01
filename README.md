@@ -1,1 +1,0 @@
-# ai-gacha-sim
