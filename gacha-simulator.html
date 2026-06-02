@@ -904,26 +904,54 @@ function dlCSV(filename,rows){
 function exportSingleCSV(){
   if(!latestPulls.length)return;
   const price=parseFloat(document.getElementById('pricePerRoll').value)||0;
-  const counts={SSR:0,SR:0,R:0,N:0};latestPulls.forEach(p=>counts[p.rarity]++);
+  const r=getRates();
   const n=latestPulls.length;
-  const ssrPct=n>0?(counts.SSR/n*100).toFixed(2)+'%':'0.00%';
-  const srPct=n>0?(counts.SR/n*100).toFixed(2)+'%':'0.00%';
-  const rPct=n>0?(counts.R/n*100).toFixed(2)+'%':'0.00%';
-  const nPctVal=n>0?(counts.N/n*100).toFixed(2)+'%':'0.00%';
-  const timeNow=new Date().toLocaleString('th-TH');
+  const timeNow=new Date().toISOString();
   const rows=[['ครั้งที่','ความหายาก','Item Name','ราคาต่อครั้ง','เวลา','จำนวนสุ่มทั้งหมด','SSR %','SR %','R %','N %']];
-  latestPulls.forEach(p=>rows.push([p.rollNo,p.rarity,p.name,price,timeNow,n,ssrPct,srPct,rPct,nPctVal]));
-  dlCSV('gacha_latest_pull.csv',rows);
+  latestPulls.forEach(p=>rows.push([p.rollNo,p.rarity,p.name,price,timeNow,n,r.SSR,r.SR,r.R,r.N]));
+  dlCSV('gacha_pull_log.csv',rows);
 }
 
 function exportPOVCSV(){
   if(!mcResult)return;
   const m=mcResult,r=getRates();
-  const timeNow=new Date().toLocaleString('th-TH');
-  const pityStatus=pityEnabled?'ON':'OFF',freeRollStatus=freeRollEnabled?'ON':'OFF';
-  const rows=[['เวลา','งบประมาณ (บาท)','ราคาต่อครั้ง (บาท)','สุ่มที่จ่าย','Free Rolls','รวมทั้งหมด','จำนวนการจำลอง','อัตรา SSR (%)','อัตรา SR (%)','อัตรา R (%)','อัตรา N (%)','Pity System','Free Roll Bonus']];
-  rows.push([timeNow,m.budget,m.price,m.paid,m.free,m.totalRolls,m.sims,r.SSR+'%',r.SR+'%',r.R+'%',r.N+'%',pityStatus,freeRollStatus]);
-  dlCSV('gacha_player_pov.csv',rows);
+  const timeNow=new Date().toISOString();
+  const pityStatus=pityEnabled?'เปิด':'ปิด';
+  const freeRollStatus=freeRollEnabled?'เปิด':'ปิด';
+  const rows=[
+    ['พารามิเตอร์การจำลอง'],
+    ['เวลา',timeNow],
+    ['งบประมาณ (บาท)',m.budget],
+    ['ราคาต่อครั้ง (บาท)',m.price],
+    ['สุ่มที่จ่าย',m.paid],
+    ['Free Rolls',m.free],
+    ['รวมทั้งหมด',m.totalRolls],
+    ['จำนวนการจำลอง',m.sims],
+    ['อัตรา SSR (%)',r.SSR],
+    ['อัตรา SR (%)',r.SR],
+    ['อัตรา R (%)',r.R],
+    ['อัตรา N (%)',r.N],
+    ['Pity System',pityStatus],
+    ['Free Roll Bonus',freeRollStatus],
+    [],
+    ['ผลลัพธ์'],
+    ['โอกาสได้ SSR อย่างน้อย 1 ชิ้น (%)',m.successRate],
+    ['โอกาสไม่ได้ SSR เลย (%)',m.failRate],
+    ['SSR เฉลี่ย',m.avgSSR],
+    ['SR เฉลี่ย',m.avgSR],
+    ['R เฉลี่ย',m.avgR],
+    ['N เฉลี่ย',m.avgN],
+    ['ผลดีที่สุด (SSR)',m.bestSSR],
+    ['ผลแย่ที่สุด (SSR)',m.worstSSR],
+    [],
+    ['การกระจาย SSR'],
+    ['จำนวน SSR','จำนวนการจำลอง','เปอร์เซ็นต์ (%)'],
+  ];
+  const freq={};m.ssrCounts.forEach(v=>{freq[v]=(freq[v]||0)+1;});
+  Object.entries(freq).sort((a,b)=>+a[0]-+b[0]).forEach(([ssr,cnt])=>{
+    rows.push([ssr,cnt,round2(cnt/m.sims*100)]);
+  });
+  dlCSV('gacha_pov_summary.csv',rows);
 }
 
 function round2(n){return Math.round(n*100)/100;}
